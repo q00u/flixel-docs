@@ -3,7 +3,7 @@ title: "Cheat Sheet"
 ```
 
 
-## [FlxSprite](http://haxeflixel.com/documentation/FlxSprite) (Base)
+## [FlxSprite](http://haxeflixel.com/documentation/flxsprite) (Base)
 
 ```haxe
 package;
@@ -31,7 +31,7 @@ class MySprite extends FlxSprite
 ```
 
 
-## [FlxState](http://haxeflixel.com/documentation/FlxState) (Base)
+## [FlxState](http://haxeflixel.com/documentation/flxstate) (Base)
 
 ```haxe
 package;
@@ -59,17 +59,20 @@ class MyState extends FlxState
 ```
 
 
-## Switch [FlxState](http://haxeflixel.com/documentation/FlxState)
+## Switch [FlxState](http://haxeflixel.com/documentation/flxstate)
 
 ```haxe
 FlxG.switchState(new MyState());
 ```
 
 
-## Load [FlxSprite](http://haxeflixel.com/documentation/FlxSprite)
+## Load [FlxSprite](http://haxeflixel.com/documentation/flxsprite)
 
 ```haxe
 loadGraphic("assets/my_sprite.png");
+
+// OR dynamically create a rect
+makeGraphic(100, 100, 0xFFFFFFFF); // width, height, color (AARRGGBB hexadecimal)
 ```
 
 
@@ -99,7 +102,19 @@ import flixel.ui.FlxButton;
 
 ```haxe
 myButton = new FlxButton(0, 0, "Label", myCallback);
+
+// Custom graphics
+myButton.loadGraphic("assets/custom.png");
 ```
+
+```haxe
+private function myCallback():Void
+{
+}
+```
+
+* **myButton.label** is a `FlxText`, use `setFormat()` and `setBorderStyle()` to customise.
+
 
 ## Sounds and Music
 Declare each file on `Project.xml`, with an unique `id`.
@@ -191,6 +206,7 @@ if (FlxG.mouse.justReleased)
 
 #### Positional Data
 ```haxe
+// Relative to world space
 FlxG.mouse.x;
 FlxG.mouse.y;
 
@@ -205,6 +221,61 @@ Current "delta" value of mouse wheel. If the wheel was just scrolled up, it will
 ```haxe
 FlxG.mouse.wheel;
 ```
+
+
+## Touch Input
+
+```haxe
+for (touch in FlxG.touches.list)
+{
+	if (touch.justPressed)
+	{
+	}
+	        
+	if (touch.pressed)
+	{
+	}
+	        
+	if (touch.justReleased)
+	{
+	}
+}
+```
+
+#### Positional Data
+```haxe
+// Relative to world space
+touch.x;
+touch.y;
+        
+// Relative to screen
+touch.screenX;
+touch.screenY;
+```
+
+* `touchPointID`: The unique ID of this touch.
+
+* `overlaps(objectOrGroup)`: Checks for overlap between this touch and another `FlxObject` or `FlxGroup`.
+
+
+## Swipes (Input)
+
+"Swipes" from both mouse and touch input that have just been released:
+
+```haxe
+for (swipe in FlxG.swipes)
+{
+    // swipe.startPosition (FlxPoint)
+    // swipe.endPosition (FlxPoint)
+    
+    // swipe.id (Int)
+
+    // swipe.distance (Float)
+    // swipe.angle (Float)
+    // swipe.duration (Float)
+}
+```
+
 
 ## FlxSignal
 
@@ -257,6 +328,7 @@ signal = FlxDestroyUtil.destroy(signal);
 stringSignal = FlxDestroyUtil.destroy(stringSignal);
 ```
 
+
 ## FlxTimer
 
 ```haxe
@@ -265,7 +337,7 @@ import flixel.util.FlxTimer;
 
 ```haxe
 // time (seconds), callback, loops
-FlxTimer.start(10.0, myCallback, 3);
+new FlxTimer(10.0, myCallback, 3);
 ```
 
 ```haxe
@@ -273,7 +345,10 @@ private function myCallback(Timer:FlxTimer):Void
 {
 }
 ```
-Setting `loops` to `0` results in an endless loop.
+* Setting `loops` to `0` results in an endless loop.
+* `reset(?NewTime)` restarts the timer, optionally with a new duration.
+* `cancel()` stops the timer and removes it from the timer manager.
+
 
 ## FlxRandom
 
@@ -294,7 +369,7 @@ FlxRandom.chanceRoll(10); // 10% chance to return 'true'
 ```
 
 
-## FlxTween
+## [FlxTween](http://haxeflixel.com/documentation/flxtween/)
 
 [Check the demo](http://haxeflixel.com/demos/FlxTween/) to visualize all `FlxTween` types.
 * **tween**(Object, Values, Duration, ?Options)
@@ -428,10 +503,6 @@ Or use `FlxG.collide()` which calls `FlxG.overlap()` and presets the `ProcessCal
 
 ```haxe
 using flixel.util.FlxSpriteUtil;
-import flixel.util.LineStyle;
-import flixel.util.FillStyle;
-import flixel.util.FlxColor;
-import flixel.util.FlxPoint;
 ```
 
 Haxe docs about the `using` keyword: [haxe.org/manual/using](http://haxe.org/manual/using).
@@ -445,8 +516,8 @@ add(canvas);
 The last argument of `makeGraphic()` is `Unique`, whether the graphic should be an unique instance in the graphics cache, if you create multiple graphics like this, set it to `true` to avoid conflicts.
 
 ```haxe
-var lineStyle:LineStyle = { color: FlxColor.RED, thickness: 1 };
-var fillStyle:FillStyle = { color: FlxColor.RED, alpha: 0.5 };
+var lineStyle = { color: FlxColor.RED, thickness: 1 };
+var fillStyle = { color: FlxColor.RED, alpha: 0.5 };
 ```
 
 ```haxe
@@ -497,17 +568,22 @@ Press `~ key` to open it during runtime, or open by code with `FlxG.debugger.vis
 
 ```haxe
 // Log
-trace("My var: " + myVar);
+FlxG.log.add("My var: " + myVar);
+// or
+FlxG.log.redirectTraces = true;
+trace("My var: ", myVar);
 
 // Watch
 FlxG.watch.add(object, "property");
 ```
+
 
 ## Hiding Cursor
 
 ```haxe
 FlxG.mouse.visible = false;
 ```
+
 
 ## Adding Gravity
 
